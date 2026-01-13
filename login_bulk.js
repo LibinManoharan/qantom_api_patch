@@ -9,6 +9,8 @@ const LOGIN_API_URL =
   "http://api.igaming.demo/igaming-apigateway/public/api/accounts/login";
 const BUYIN_API_URL =
   "http://api.igaming.demo/igaming-apigateway/public/api/thirdparty/oncasino/buyIn";
+const BUYOUT_API_URL =
+  "http://api.igaming.demo/igaming-apigateway/public/api/thirdparty/oncasino/buyOut";
 
 const loginHeaders = {
   apiId: apiId,
@@ -89,15 +91,15 @@ async function loginUsers() {
         const userId = response.data?.data?.userData?.userid;
         
         if (autoLoginToken && userId) {
-          console.log(`   AutoLoginToken: ${autoLoginToken}`);
-          console.log(`   UserId: ${userId}`);
+          // console.log(`   AutoLoginToken: ${autoLoginToken}`);
+          // console.log(`   UserId: ${userId}`);
           
           // Step 2: Call buyIn API
           try {
-            const buyInAmount = rand(1, 2).toString(); // Random amount between 1-100
+            const buyInAmount = rand(1, 2).toString(); // Random amount between 1-2
             const referenceNumber = randomNumber(12); // 12-digit random number
             const txnId = randomNumber(12); // 12-digit random number
-            const timestamp = new Date().toISOString().slice(0, 19); // Format: 2025-08-12T15:44:36
+            const timestamp = new Date().toISOString().slice(0, 19);
             
             // Generate hashKey: MD5(apiId-apiKey-sessionKey)
             const hashString = `${buyInApiId}-${buyInApiKey}-${autoLoginToken}`;
@@ -105,9 +107,6 @@ async function loginUsers() {
             
             // Get random game ID
             const selectedGameId = getRandomGameId();
-            
-            console.log(`   Generated HashKey: ${generatedHashKey}`);
-            console.log(`   Selected Game: ${selectedGameId}`);
             
             const buyInData = {
               apiId: buyInApiId,
@@ -136,20 +135,56 @@ async function loginUsers() {
               headers: buyInHeaders,
             });
             
-            if (buyInResponse.data && buyInResponse.data.success === true) {
-              console.log(`💰 ${i} BuyIn successful for ${username} - Amount: $${buyInAmount}, Ref: ${referenceNumber}`);
+            // Casino API returns success when errorDetails is null
+            if (buyInResponse.data && buyInResponse.data.errorDetails === null) {
+              console.log(`💰 ${i} BuyIn successful for ${username} - Game: ${selectedGameId}, Amount: $${buyInAmount}, Balance: ${buyInResponse.data.balance}`);
+              
+              // Step 3: Call buyOut API (Only if BuyIn succeeded)
+              try {
+                const buyOutAmount = rand(2, 100).toString(); // Random amount between 2-100
+                const buyOutTxnId = randomNumber(12);
+                const buyOutTimestamp = new Date().toISOString().slice(0, 19);
+
+                const buyOutData = {
+                  apiId: buyInApiId.toString(),
+                  apiKey: buyInApiKey,
+                  sessionKey: autoLoginToken,
+                  hashKey: generatedHashKey,
+                  timeStamp: buyOutTimestamp,
+                  playerName: username,
+                  playerId: userId.toString(),
+                  gameId: selectedGameId,
+                  buyOutAmount: buyOutAmount,
+                  referenceNumber: referenceNumber, // Same referenceNumber
+                  txnId: buyOutTxnId,
+                  completed: "1",
+                  device: "DESKTOP",
+                  currency: "INR",
+                  partialAmount: "0"
+                };
+
+                const buyOutResponse = await axios.post(BUYOUT_API_URL, buyOutData, {
+                  headers: buyInHeaders,
+                });
+
+                if (buyOutResponse.data && buyOutResponse.data.errorDetails === null) {
+                  console.log(`💸 ${i} BuyOut successful for ${username} - Amount: ₹${buyOutAmount}, Final Balance: ${buyOutResponse.data.balance}`);
+                } else {
+                  console.error(`❌ ${i} BuyOut failed for ${username}:`, buyOutResponse.data?.errorDetails?.errorMsg || "Unknown Error");
+                  console.log(`   BuyOut Response:`, JSON.stringify(buyOutResponse.data, null, 2));
+                }
+
+              } catch (buyOutError) {
+                console.error(`❌ ${i} BuyOut API error for ${username}:`, buyOutError.message);
+              }
+
             } else {
-              const errorCodes = buyInResponse.data?.code || [];
-              console.error(`❌ ${i} BuyIn failed for ${username} - Error codes: [${errorCodes.join(', ')}]`);
+              console.error(`❌ ${i} BuyIn failed for ${username}:`, buyInResponse.data?.errorDetails?.errorMsg || "Unknown Error");
+              console.log(`   BuyIn Response:`, JSON.stringify(buyInResponse.data, null, 2));
             }
-            console.log(`   BuyIn Response:`, JSON.stringify(buyInResponse.data, null, 2));
             
           } catch (buyInError) {
-            console.error(`❌ ${i} BuyIn API error for ${username}:`);
-            console.log(
-              `   Error:`,
-              JSON.stringify(buyInError.response?.data || buyInError.message, null, 2)
-            );
+            console.error(`❌ ${i} BuyIn API error for ${username}:`, buyInError.message);
           }
         } else {
           console.warn(`⚠️  ${i} Missing autoLoginToken or userId for ${username}`);
@@ -157,24 +192,13 @@ async function loginUsers() {
       } else {
         // API returned success: false with error codes
         const errorCodes = response.data?.code || [];
-        const firstCode = response.data?.firstCode || "N/A";
-        console.error(
-          `❌ ${i} Login failed for ${username} - Error codes: [${errorCodes.join(
-            ", "
-          )}], First code: ${firstCode}`
-        );
-        console.log(`   Response:`, JSON.stringify(response.data, null, 2));
+        console.error(`❌ ${i} Login failed for ${username} - Error codes: [${errorCodes.join(", ")}]`);
       }
     } catch (error) {
-      // Network or HTTP error
-      console.error(`❌ ${i} Network/HTTP error for ${username}:`);
-      console.log(
-        `   Error:`,
-        JSON.stringify(error.response?.data || error.message, null, 2)
-      );
+      console.error(`❌ ${i} Network/HTTP error for ${username}:`, error.message);
     }
 
-    console.log("---"); // Separator between users
+    console.log("---");
   }
 }
 
