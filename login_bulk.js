@@ -49,7 +49,7 @@ const getRandomGameId = () => gameIds[Math.floor(Math.random() * gameIds.length)
 
 // Login users from user021 to user0250
 async function loginUsers() {
-  for (let i = 1; i <= 1; i++) {
+  for (let i = 1; i <= 50; i++) {
     const username = `${playerPrefix}${i}`;
 
     const loginData = new URLSearchParams({
