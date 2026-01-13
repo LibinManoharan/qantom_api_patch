@@ -27,14 +27,23 @@ const buyInHashKey = "1b17bb5fa8e54f23ca224218577726d0";
 // const buyInHashKey = "1b17bb5fa8e54f23ca224218577726d0";
 
 // Game IDs array
+// casino game id
 const gameIds = [
-//   "DS-triplemonkey",
-//   "DS-partynight",
-//   "DS-overlordconcubine",
-//   "DS-dancingsamba",
-//   "DS-worldie",
-  "SWL-atomroulette"
+  "DS-triplemonkey",
+  "DS-partynight",
+  "DS-overlordconcubine",
+  "DS-dancingsamba",
+  "DS-worldie",
 ];
+
+// live game id
+// const gameIds = [
+//   "SWL-liverushroulette",
+//   "SWL-blackjackmax",
+//   "SWL-redroulette",
+//   "DSSWL-yellowatomroulette",
+//   "SWL-baccarata01nc",
+// ];
 
 const playerPrefix = "user02";
 const password = "Test@123";
