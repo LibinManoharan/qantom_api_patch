@@ -4,14 +4,15 @@ const SIGNUP_API_URL =
   "http://api.igaming.demo/igaming-apigateway/public/api/accounts/signup";
 const PAYMENT_API_URL =
   "http://api.igaming.demo/igaming-apigateway/public/api/thirdparty/initiate-payment";
-
+const apiKey = "ChCETzHM0tvy7sij9fNsAto3fo6by7j9Cr931cdgr52AfYm1yF";
+const hashKey = "cc594f39c3d5c9d523e1658ce7ac6816";
 const signupHeaders = {
   apiId: "1001",
-  apiKey: "ChCETzHM0tvy7sij9fNsAto3fo6by7j9Cr931cdgr52AfYm1yF",
-  hashKey: "cc594f39c3d5c9d523e1658ce7ac6816",
+  apiKey: apiKey,
+  hashKey: hashKey,
   "Content-Type": "application/x-www-form-urlencoded",
 };
-
+const playerPrefix = Date.now();
 // Generate random helpers
 const randomNumber = (length) =>
   Math.floor(Math.random() * Math.pow(10, length))
@@ -26,13 +27,13 @@ const rand = (min, max) =>
 
 // Insert 500 records
 async function insertUsers() {
-  for (let i = 1; i <= 500; i++) {
+  for (let i = 1; i <= 2; i++) {
     const timestamp = Date.now();
 
     // Keep username under 20 characters (e.g., "user1_289249" = 13 chars max)
     const shortTimestamp = timestamp.toString().slice(-6); // Last 6 digits
-    const username = `player1${i}`;
-    const email = `player1${i}@gmail.com`;
+    const username = `${playerPrefix}${i}`;
+    const email = `${playerPrefix}${i}@gmail.com`;
     const mobileNo = `9${randomNumber(9)}`; // Indian 10-digit mobile
     const ipAddress = randomIP();
 
