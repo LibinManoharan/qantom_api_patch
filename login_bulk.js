@@ -16,19 +16,24 @@ const loginHeaders = {
   hashKey: hashKey,
   "Content-Type": "application/x-www-form-urlencoded",
 };
-
+// Need change the api based on live and casino
 // BuyIn API constants
 const buyInApiId = 334;
 const buyInApiKey = "xnuLrCeb1Hb86i96IEN6tdchfseWZ0";
 const buyInHashKey = "1b17bb5fa8e54f23ca224218577726d0";
+// Live casino 
+// const buyInApiId = 335;
+// const buyInApiKey = "Zr7iF9QjkGA9gn89PWb6d7mhbyBoAL";
+// const buyInHashKey = "1b17bb5fa8e54f23ca224218577726d0";
 
 // Game IDs array
 const gameIds = [
-  "DS-triplemonkey",
-  "DS-partynight",
-  "DS-overlordconcubine",
-  "DS-dancingsamba",
-  "DS-worldie"
+//   "DS-triplemonkey",
+//   "DS-partynight",
+//   "DS-overlordconcubine",
+//   "DS-dancingsamba",
+//   "DS-worldie",
+  "SWL-atomroulette"
 ];
 
 const playerPrefix = "user02";
